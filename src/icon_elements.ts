@@ -1,7 +1,4 @@
-var helper = require('./helper')
-var makeLabel = helper.makeLabel
-var setTextOfColumn = helper.setTextOfColumn
-var setTextOfLine = helper.setTextOfLine
+import { setTextOfColumn, setTextOfLine, makeLabel } from "./helper"
 
 export interface SurfaceElements {
   d2Display: MR_BlindPanel,
