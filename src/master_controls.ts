@@ -23,14 +23,14 @@ export function makePageWithDefaults(name: string, device: IconPlatformMplus, de
 
   var subPageJogZoom = zoomSubPageArea.makeSubPage('Zoom')
   // subPageJogZoom.mOnActivate = (activeDevice)  => {
-  //   // TODO Need a way to manage the lack of ability to know this has turned off. Can the message be SENT to the Icon to esnure mode is correct?
+  //   // Need a way to manage the lack of ability to know this has turned off. Can the message be SENT to the Icon to esnure mode is correct?
   //   // console.log('Zoom activated')
   //   // device.lcdManager.setIndicator1Text(activeDevice, ' ')
   // }
 
   var subPageJobNav = zoomSubPageArea.makeSubPage('Nav')
   // subPageJobNav.mOnActivate = (activeDevice) => {
-  //   // TODO See Zoom comment
+  //   // See Zoom comment
   //   // console.log('Nav activated')
   //   // device.lcdManager.setIndicator1Text(activeDevice, 'N')
   // }

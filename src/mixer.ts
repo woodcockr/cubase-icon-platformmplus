@@ -41,7 +41,7 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
 
   }
 
-  page.mOnActivate = function (activeDevice: MR_ActiveDevice) {
+  page.mOnActivate = (activeDevice: MR_ActiveDevice) => {
       // console.log('from script: Platform M+ page "Mixer" activated')
       globalBooleanVariables.displayChannelValueName.set(activeDevice, false)
       globalBooleanVariables.displayParameterTitle.set(activeDevice, false)

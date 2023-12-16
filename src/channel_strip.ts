@@ -45,7 +45,7 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
         var faderStrip = device.channelControls[idx]
         var type = ['mGate', 'mCompressor', 'mTools', 'mSaturator', 'mLimiter'][idx]
         for (var i = 0; i < 2; i++) { // ! Workaround for Cubase 12.0.60+ bug
-            page.makeValueBinding(faderStrip.buttons.record.mSurfaceValue, stripEffects[type].mOn) // TODO replace to be without binding but with a customvar that monitor the mOn value and controls the rec led
+            page.makeValueBinding(faderStrip.buttons.record.mSurfaceValue, stripEffects[type].mOn) // ? This doesn't work that well cause of MIDI Remote API.
             page.makeValueBinding(faderStrip.buttons.mute.mSurfaceValue, stripEffects[type].mBypass).setTypeToggle()
         }
     }
@@ -56,7 +56,7 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
     page.makeActionBinding(device.channelControls[3].buttons.select.mSurfaceValue, saturatorPage.mAction.mActivate)
     page.makeActionBinding(device.channelControls[4].buttons.select.mSurfaceValue, limiterPage.mAction.mActivate)
 
-    // TODO Could add a custom display update here to add the name of the plugin which is active - it's the ChannelTitle or mOnChangePluginIdentity- but needs to be on the second line in the display
+    // ? Could add a custom display update here to add the name of the plugin which is active - it's the ChannelTitle or mOnChangePluginIdentity- but needs to be on the second line in the display
     gatePage.mOnActivate = (activeDevice) => {
         device.lcdManager.setTextLine(activeDevice, 0, "Gate")
     }
@@ -78,7 +78,7 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
         globalBooleanVariables.displayChannelValueName.set(activeDevice, true)
         globalBooleanVariables.displayParameterTitle.set(activeDevice, true)
 
-        // TODO Action Binding as a toggle would be nice to display led on subpage activation
+        // ? Action Binding as a toggle would be nice to display led on subpage activation, but LED Button has other ideas and Action Bindings are not toggles.
         //   midiOutput.sendMidi(activeDevice, [0x90, 24, 127])
         //   midiOutput.sendMidi(activeDevice, [0x90, 25, 0])
         //   midiOutput.sendMidi(activeDevice, [0x90, 26, 0])

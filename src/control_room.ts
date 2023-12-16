@@ -32,7 +32,7 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
 
   }
 
-  page.mOnActivate = function (/** @type {MR_ActiveDevice} */activeDevice) {
+  page.mOnActivate = (activeDevice: MR_ActiveDevice) => {
       console.log('from script: Platform M+ page "ControlRoom" activated')
       globalBooleanVariables.displayChannelValueName.set(activeDevice, false)
       globalBooleanVariables.displayParameterTitle.set(activeDevice, true)

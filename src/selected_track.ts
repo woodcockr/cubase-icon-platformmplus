@@ -126,7 +126,7 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
     page.makeValueBinding(device.channelControls[1].buttons.select.mSurfaceValue, preFilter.mHighCutOn).setTypeToggle().setSubPage(subPagePreFilter)
     page.makeValueBinding(device.channelControls[2].buttons.select.mSurfaceValue, preFilter.mLowCutOn).setTypeToggle().setSubPage(subPagePreFilter)
 
-    page.makeValueBinding(knobSurfaceValue, preFilter.mPhaseSwitch ).setSubPage(subPagePreFilter) // TODO No way to remove a valueBinding that is on another subpage? Duplicate yes but nothing else to set it too
+    page.makeValueBinding(knobSurfaceValue, preFilter.mPhaseSwitch ).setSubPage(subPagePreFilter) // ? No way to remove a valueBinding that is on another subpage? Duplicate yes but nothing else to set it too
     page.makeValueBinding(knob2SurfaceValue, preFilter.mHighCutSlope).setSubPage(subPagePreFilter)
     page.makeValueBinding(knob3SurfaceValue, preFilter.mLowCutSlope).setSubPage(subPagePreFilter)
 
@@ -151,7 +151,7 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
         device.midiPortPair.output.sendMidi(activeDevice, [0x90, 2, 0])
         device.midiPortPair.output.sendMidi(activeDevice, [0x90, 3, 0])
     }
-    // TODO LedButton - wants to turn the light off on release - which is annoying...
+    // ? Action binding is not a toggle and LedButton - wants to turn the light off on release
     subPageSendsQC.mOnActivate = (activeDevice) => {
         globalBooleanVariables.displayChannelValueName.set(activeDevice, true)
         globalBooleanVariables.displayParameterTitle.set(activeDevice, true)

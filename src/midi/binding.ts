@@ -16,7 +16,6 @@ export const createGlobalBooleanVariables = () => ({
   isValueDisplayModeActive: new BooleanContextStateVariable(),
   resetDisplay: new BooleanContextStateVariable(), // Toggling this will refresh the display with TrackTitles etc)
   areDisplayRowsFlipped: new BooleanContextStateVariable(),
-  isEncoderAssignmentActive: createElements(6, () => new BooleanContextStateVariable()), // TODO  What is this for?
   isFlipModeActive: new BooleanContextStateVariable(),
   displayChannelValueName: new BooleanContextStateVariable(),
   displayParameterTitle: new BooleanContextStateVariable(),
@@ -31,7 +30,6 @@ export function bindDeviceToMidi(
   { setTimeout }: TimerUtils
 ) {
   const ports = device.midiPortPair;
-  const ccPorts = device.ccPortPair;
 
   function bindFader(ports: PortPair, fader: TouchSensitiveFader, faderIndex: number) {
     fader.mSurfaceValue.mMidiBinding.setInputPort(ports.input).bindToPitchBend(faderIndex);
@@ -70,10 +68,12 @@ export function bindDeviceToMidi(
       lastFaderValue.set(context, newValue);
     };
 
-    // Set fader to `0` when unassigned
+
     fader.mSurfaceValue.mOnTitleChange = (context, title) => {
+      // Ensure faders update on a title change
+      forceUpdate.set(context, true);
+      // Set fader to `0` when unassigned
       if (title === "") {
-        forceUpdate.set(context, true);
         fader.mSurfaceValue.setProcessValue(context, 0);
         // `mOnProcessValueChange` somehow isn't run here on `setProcessValue()`, hence:
         lastFaderValue.set(context, 0);
