@@ -53,7 +53,7 @@ var mixerPage = decoratePage(mixer.makePage(device, deviceDriver, globalBooleanV
 var selectedTrackPage = decoratePage(selected_track.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
 var channelStripPage = decoratePage(channel_strip.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
 var controlRoomPage = decoratePage(control_room.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
-// var midiPage = midi.makePage(surfaceElements, deviceDriver, midiOutput, midiPageOutput)
+var midiPage = decoratePage(midi.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
 const timerUtils = makeTimerUtils(deviceDriver, mixerPage, surface);
 
 bindDeviceToMidi(device, globalBooleanVariables, activationCallbacks, timerUtils);
