@@ -50,7 +50,7 @@ activationCallbacks.addCallback((context) => {
 });
 
 var mixerPage = decoratePage(mixer.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
-// var selectedTrackPage = selected_track.makePage(surfaceElements, deviceDriver, midiOutput)
+var selectedTrackPage = decoratePage(selected_track.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
 // var channelStripPage = channel_strip.makePage(surfaceElements, deviceDriver, midiOutput)
 var controlRoomPage = decoratePage(control_room.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
 // var midiPage = midi.makePage(surfaceElements, deviceDriver, midiOutput, midiPageOutput)

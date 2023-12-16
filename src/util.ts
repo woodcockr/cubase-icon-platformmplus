@@ -88,7 +88,7 @@ export function makeTimerUtils(
     { callback: (context: MR_ActiveDevice) => void; scheduledExecutionTime: number }
   > = {};
 
-  let isIdleCallbackSupported = false;
+  let isIdleCallbackSupported = true;
 
   // Cubase 13 and above: Register an Idle Callback
   driver.mOnIdle = function (context) {
