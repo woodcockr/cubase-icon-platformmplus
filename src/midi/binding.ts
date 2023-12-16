@@ -288,7 +288,7 @@ export function bindDeviceToMidi(
   bindFader(ports, master.fader, 8);
 
   master.fader.mSurfaceValue.mOnTitleChange = (context: MR_ActiveDevice, objectTitle: string, valueTitle: string) => {
-    console.log("Master Fader Title Change:" + objectTitle + ":" + valueTitle)
+    // console.log("Master Fader Title Change:" + objectTitle + ":" + valueTitle)
     var title = objectTitle ? objectTitle + ":" + valueTitle : "No AI Parameter under mouse"
     currentMasterFaderParameterName.set(
       context,
@@ -309,9 +309,8 @@ export function bindDeviceToMidi(
       context,
       value + ' ' + units
     );
-    console.log("MasterFader Display Value Change: " + value + ":" + currentMasterFaderParameterName.get(context))
+    // console.log("MasterFader Display Value Change: " + value + ":" + currentMasterFaderParameterName.get(context))
     if (master.fader.mTouchedValue.getProcessValue(context) === 1) {
-      console.log("MasterFader Display update")
       device.lcdManager.setTextLine(context, 1, currentMasterFaderParameterName.get(context))
       device.lcdManager.setTextLine(context, 0, currentMasterFaderDisplayValue.get(context))
     }
