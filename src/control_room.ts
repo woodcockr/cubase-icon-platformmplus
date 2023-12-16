@@ -1,28 +1,31 @@
-import { clearAllLeds } from "./icon_elements";
 import { makePageWithDefaults } from "./master_controls"
-import { SurfaceElements } from "./icon_elements"
+import { IconPlatformMplus } from "./icon_elements"
+import { GlobalBooleanVariables } from "./midi/binding"
+import { ActivationCallbacks } from "./midi/connection"
 
-export function makePage(surfaceElements: SurfaceElements, deviceDriver: MR_DeviceDriver, midiOutput: MR_DeviceMidiOutput) {
-  var page = makePageWithDefaults('ControlRoom', surfaceElements, deviceDriver, midiOutput)
+export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDriver, globalBooleanVariables: GlobalBooleanVariables, activationCallbacks: ActivationCallbacks ) {
+  var page = makePageWithDefaults('ControlRoom', device, deviceDriver, globalBooleanVariables, activationCallbacks)
 
   var controlRoom = page.mHostAccess.mControlRoom
 
   // Main
-  page.makeValueBinding(surfaceElements.channelControls[0].fader.mSurfaceValue, controlRoom.mMainChannel.mLevelValue).setValueTakeOverModeJump()
-  page.makeValueBinding(surfaceElements.channelControls[0].mute_button.mSurfaceValue, controlRoom.mMainChannel.mMuteValue).setTypeToggle()
-  page.makeValueBinding(surfaceElements.channelControls[0].sel_button.mSurfaceValue, controlRoom.mMainChannel.mMetronomeClickActiveValue).setTypeToggle()
+  page.makeValueBinding(device.channelControls[0].scribbleStrip.trackTitle, controlRoom.mMainChannel.mLevelValue);
+  page.makeValueBinding(device.channelControls[0].fader.mSurfaceValue, controlRoom.mMainChannel.mLevelValue).setValueTakeOverModeJump()
+  page.makeValueBinding(device.channelControls[0].buttons.mute.mSurfaceValue, controlRoom.mMainChannel.mMuteValue).setTypeToggle()
+  page.makeValueBinding(device.channelControls[0].buttons.select.mSurfaceValue, controlRoom.mMainChannel.mMetronomeClickActiveValue).setTypeToggle()
   // Phones[0]
-  page.makeValueBinding(surfaceElements.channelControls[1].fader.mSurfaceValue, controlRoom.getPhonesChannelByIndex(0).mLevelValue).setValueTakeOverModeJump()
-  page.makeValueBinding(surfaceElements.channelControls[1].mute_button.mSurfaceValue, controlRoom.getPhonesChannelByIndex(0).mMuteValue).setTypeToggle()
-  page.makeValueBinding(surfaceElements.channelControls[1].sel_button.mSurfaceValue, controlRoom.getPhonesChannelByIndex(0).mMetronomeClickActiveValue).setTypeToggle()
+  page.makeValueBinding(device.channelControls[1].scribbleStrip.trackTitle, controlRoom.getPhonesChannelByIndex(0).mLevelValue);
+  page.makeValueBinding(device.channelControls[1].fader.mSurfaceValue, controlRoom.getPhonesChannelByIndex(0).mLevelValue).setValueTakeOverModeJump()
+  page.makeValueBinding(device.channelControls[1].buttons.mute.mSurfaceValue, controlRoom.getPhonesChannelByIndex(0).mMuteValue).setTypeToggle()
+  page.makeValueBinding(device.channelControls[1].buttons.select.mSurfaceValue, controlRoom.getPhonesChannelByIndex(0).mMetronomeClickActiveValue).setTypeToggle()
 
   var maxCueSends = controlRoom.getMaxCueChannels() < 8 ? controlRoom.getMaxCueChannels() : 8
 
   for (var i = 0; i < maxCueSends; ++i) {
       var cueSend = controlRoom.getCueChannelByIndex(i)
 
-      var knobSurfaceValue = surfaceElements.channelControls[i].pushEncoder.mEncoderValue;
-      var knobPushValue = surfaceElements.channelControls[i].pushEncoder.mPushValue;
+      var knobSurfaceValue = device.channelControls[i].encoder.mEncoderValue;
+      var knobPushValue = device.channelControls[i].encoder.mPushValue;
 
       page.makeValueBinding(knobSurfaceValue, cueSend.mLevelValue)
       page.makeValueBinding(knobPushValue, cueSend.mMuteValue).setTypeToggle()
@@ -31,10 +34,8 @@ export function makePage(surfaceElements: SurfaceElements, deviceDriver: MR_Devi
 
   page.mOnActivate = function (/** @type {MR_ActiveDevice} */activeDevice) {
       console.log('from script: Platform M+ page "ControlRoom" activated')
-      // WIP
-      activeDevice.setState("activePage", "ControlRoom")
-      activeDevice.setState("activeSubPage", "Default")
-      clearAllLeds(activeDevice, midiOutput)
+      globalBooleanVariables.displayChannelValueName.set(activeDevice, false)
+      globalBooleanVariables.displayParameterTitle.set(activeDevice, true)
   }
 
   return page

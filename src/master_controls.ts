@@ -1,128 +1,98 @@
-import { SurfaceElements, Helper_updateDisplay } from "./icon_elements"
+import { IconPlatformMplus  } from "./icon_elements"
+import { GlobalBooleanVariables } from "./midi/binding";
+import { ActivationCallbacks } from "./midi/connection"
 
-var iconElements = require('./icon_elements.js')
-
-/**
- * @param {string} name
-*/
 // Mappings for the default areas - transport, zoom, knob
-export function makePageWithDefaults(name: string, surfaceElements: SurfaceElements, deviceDriver: MR_DeviceDriver, midiOutput: MR_DeviceMidiOutput) : MR_FactoryMappingPage{
+export function makePageWithDefaults(name: string, device: IconPlatformMplus, deviceDriver: MR_DeviceDriver, globalBooleanVariables: GlobalBooleanVariables, activationCallbacks: ActivationCallbacks ) : MR_FactoryMappingPage{
   var page = deviceDriver.mMapping.makePage(name)
-
 
   var jogSubPageArea = page.makeSubPageArea('Jog')
   var zoomSubPageArea = page.makeSubPageArea('Zoom')
 
   var subPageJogNudge = jogSubPageArea.makeSubPage('Nudge')
-  subPageJogNudge.mOnActivate = function (activeDevice: MR_ActiveDevice) {
-    console.log('Nudge activated')
-    var new_display = {
-      row1: '',
-      row2: '',
-      indicator1: '',
-      indicator2: 'N'
-    }
-    iconElements.updateDisplay(new_display, activeDevice, midiOutput)
+  subPageJogNudge.mOnActivate = (activeDevice) => {
+    // console.log('Nudge activated')
+    device.lcdManager.setIndicator2Text(activeDevice, 'N')
   }
 
   var subPageJogScrub = jogSubPageArea.makeSubPage('Scrub')
-  subPageJogScrub.mOnActivate = function (activeDevice: MR_ActiveDevice) {
-    console.log('Scrub activated')
-    var new_display = {
-      row1: '',
-      row2: '',
-      indicator1: '',
-      indicator2: 'S'
-    }
-    iconElements.updateDisplay(new_display, activeDevice, midiOutput)
+  subPageJogScrub.mOnActivate = (activeDevice) => {
+    // console.log('Scrub activated')
+    device.lcdManager.setIndicator2Text(activeDevice, 'S')
   }
 
   var subPageJogZoom = zoomSubPageArea.makeSubPage('Zoom')
-  subPageJogZoom.mOnActivate = function (/** @type {MR_ActiveDevice} **/activeDevice) {
-    console.log('Zoom activated')
-    var new_display = {
-      row1: '',
-      row2: '',
-      indicator1: ' ', // Just make it blank because of the way the Icon manages the btnZoomOnOff event
-      indicator2: ''
-    }
-    iconElements.updateDisplay(new_display, activeDevice, midiOutput)
-  }
+  // subPageJogZoom.mOnActivate = (activeDevice)  => {
+  //   // TODO Need a way to manage the lack of ability to know this has turned off. Can the message be SENT to the Icon to esnure mode is correct?
+  //   // console.log('Zoom activated')
+  //   // device.lcdManager.setIndicator1Text(activeDevice, ' ')
+  // }
 
   var subPageJobNav = zoomSubPageArea.makeSubPage('Nav')
-  subPageJobNav.mOnActivate = function (/** @type {MR_ActiveDevice} **/activeDevice) {
-    console.log('Nav activated')
-    var new_display = {
-      row1: '',
-      row2: '',
-      indicator1: 'N',
-      indicator2: ''
-    }
-    iconElements.updateDisplay(new_display, activeDevice, midiOutput)
-  }
+  // subPageJobNav.mOnActivate = (activeDevice) => {
+  //   // TODO See Zoom comment
+  //   // console.log('Nav activated')
+  //   // device.lcdManager.setIndicator1Text(activeDevice, 'N')
+  // }
 
   // Transport controls
-  page.makeActionBinding(surfaceElements.transport.prevChn.mSurfaceValue, deviceDriver.mAction.mPrevPage)
-  page.makeActionBinding(surfaceElements.transport.nextChn.mSurfaceValue, deviceDriver.mAction.mNextPage)
-  page.makeCommandBinding(surfaceElements.transport.prevBnk.mSurfaceValue, 'Transport', 'Locate Previous Marker')
-  page.makeCommandBinding(surfaceElements.transport.nextBnk.mSurfaceValue, 'Transport', 'Locate Next Marker')
-  page.makeValueBinding(surfaceElements.transport.btnForward.mSurfaceValue, page.mHostAccess.mTransport.mValue.mForward)
-  page.makeValueBinding(surfaceElements.transport.btnRewind.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRewind)
-  page.makeValueBinding(surfaceElements.transport.btnStart.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStart).setTypeToggle()
-  page.makeValueBinding(surfaceElements.transport.btnStop.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStop).setTypeToggle()
-  page.makeValueBinding(surfaceElements.transport.btnRecord.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord).setTypeToggle()
-  page.makeValueBinding(surfaceElements.transport.btnCycle.mSurfaceValue, page.mHostAccess.mTransport.mValue.mCycleActive).setTypeToggle()
+  page.makeActionBinding(device.transport.buttons.prevChn.mSurfaceValue, deviceDriver.mAction.mPrevPage)
+  page.makeActionBinding(device.transport.buttons.nextChn.mSurfaceValue, deviceDriver.mAction.mNextPage)
+  page.makeCommandBinding(device.transport.buttons.prevBnk.mSurfaceValue, 'Transport', 'Locate Previous Marker')
+  page.makeCommandBinding(device.transport.buttons.nextBnk.mSurfaceValue, 'Transport', 'Locate Next Marker')
+  page.makeValueBinding(device.transport.buttons.forward.mSurfaceValue, page.mHostAccess.mTransport.mValue.mForward)
+  page.makeValueBinding(device.transport.buttons.rewind.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRewind)
+  page.makeValueBinding(device.transport.buttons.start.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStart).setTypeToggle()
+  page.makeValueBinding(device.transport.buttons.stop.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStop).setTypeToggle()
+  page.makeValueBinding(device.transport.buttons.record.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord).setTypeToggle()
+  page.makeValueBinding(device.transport.buttons.cycle.mSurfaceValue, page.mHostAccess.mTransport.mValue.mCycleActive).setTypeToggle()
 
   // Zoom Pages - when either Zoom light is on
-  page.makeCommandBinding(surfaceElements.transport.zoomVertIn.mSurfaceValue, 'Zoom', 'Zoom In Vertically').setSubPage(subPageJogZoom)
-  page.makeCommandBinding(surfaceElements.transport.zoomVertOut.mSurfaceValue, 'Zoom', 'Zoom Out Vertically').setSubPage(subPageJogZoom)
-  page.makeCommandBinding(surfaceElements.transport.zoomHorizIn.mSurfaceValue, 'Zoom', 'Zoom In').setSubPage(subPageJogZoom)
-  page.makeCommandBinding(surfaceElements.transport.zoomHorizOut.mSurfaceValue, 'Zoom', 'Zoom Out').setSubPage(subPageJogZoom)
+  page.makeCommandBinding(device.transport.buttons.zoomVertIn.mSurfaceValue, 'Zoom', 'Zoom In Vertically').setSubPage(subPageJogZoom)
+  page.makeCommandBinding(device.transport.buttons.zoomVertOut.mSurfaceValue, 'Zoom', 'Zoom Out Vertically').setSubPage(subPageJogZoom)
+  page.makeCommandBinding(device.transport.buttons.zoomHorizIn.mSurfaceValue, 'Zoom', 'Zoom In').setSubPage(subPageJogZoom)
+  page.makeCommandBinding(device.transport.buttons.zoomHorizOut.mSurfaceValue, 'Zoom', 'Zoom Out').setSubPage(subPageJogZoom)
   // Nav Pages
-  page.makeActionBinding(surfaceElements.transport.zoomVertIn.mSurfaceValue, page.mHostAccess.mTrackSelection.mAction.mNextTrack).setSubPage(subPageJobNav)
-  page.makeActionBinding(surfaceElements.transport.zoomVertOut.mSurfaceValue, page.mHostAccess.mTrackSelection.mAction.mPrevTrack).setSubPage(subPageJobNav)
-  page.makeCommandBinding(surfaceElements.transport.zoomHorizIn.mSurfaceValue, 'Transport', 'Locate Next Event').setSubPage(subPageJobNav)
-  page.makeCommandBinding(surfaceElements.transport.zoomHorizOut.mSurfaceValue, 'Transport', 'Locate Previous Event').setSubPage(subPageJobNav)
+  page.makeActionBinding(device.transport.buttons.zoomVertIn.mSurfaceValue, page.mHostAccess.mTrackSelection.mAction.mNextTrack).setSubPage(subPageJobNav)
+  page.makeActionBinding(device.transport.buttons.zoomVertOut.mSurfaceValue, page.mHostAccess.mTrackSelection.mAction.mPrevTrack).setSubPage(subPageJobNav)
+  page.makeCommandBinding(device.transport.buttons.zoomHorizIn.mSurfaceValue, 'Transport', 'Locate Next Event').setSubPage(subPageJobNav)
+  page.makeCommandBinding(device.transport.buttons.zoomHorizOut.mSurfaceValue, 'Transport', 'Locate Previous Event').setSubPage(subPageJobNav)
   // Switch Zoom and Nav via simultaneous press of Zoom buttons
-  page.makeActionBinding(surfaceElements.transport.btnZoomOnOff.mSurfaceValue, zoomSubPageArea.mAction.mNext)
-  // page.makeActionBinding(surfaceElements.transport.zoomState.mSurfaceValue, zoomSubPageArea.mAction.mNext)
+  page.makeActionBinding(device.transport.buttons.zoomOnOff.mSurfaceValue, zoomSubPageArea.mAction.mNext)
 
   // Jog Pages - when Zoom lights are off
   // Nudge
-  page.makeCommandBinding(surfaceElements.transport.jogLeftVariable, 'Transport', 'Nudge Cursor Left').setSubPage(subPageJogNudge)
-  page.makeCommandBinding(surfaceElements.transport.jogRightVariable, 'Transport', 'Nudge Cursor Right').setSubPage(subPageJogNudge)
+  page.makeCommandBinding(device.transport.jog_wheel.mJogLeftValue, 'Transport', 'Nudge Cursor Left').setSubPage(subPageJogNudge)
+  page.makeCommandBinding(device.transport.jog_wheel.mJogRightValue, 'Transport', 'Nudge Cursor Right').setSubPage(subPageJogNudge)
   // Scrub (Jog in Cubase)
-  page.makeCommandBinding(surfaceElements.transport.jogLeftVariable, 'Transport', 'Jog Left').setSubPage(subPageJogScrub)
-  page.makeCommandBinding(surfaceElements.transport.jogRightVariable, 'Transport', 'Jog Right').setSubPage(subPageJogScrub)
+  page.makeCommandBinding(device.transport.jog_wheel.mJogLeftValue, 'Transport', 'Jog Left').setSubPage(subPageJogScrub)
+  page.makeCommandBinding(device.transport.jog_wheel.mJogRightValue, 'Transport', 'Jog Right').setSubPage(subPageJogScrub)
   // Switch between Nudge and Scrub by tapping knob
-  page.makeActionBinding(surfaceElements.transport.jog_wheel.mPushValue, jogSubPageArea.mAction.mNext)
+  page.makeActionBinding(device.transport.jog_wheel.mPushValue, jogSubPageArea.mAction.mNext)
+
 
   var MasterFaderSubPageArea = page.makeSubPageArea('MasterFader')
   var subPageMasterFaderValue = MasterFaderSubPageArea.makeSubPage('MF_ValueUnderCursor')
 
-  page.makeValueBinding(surfaceElements.faderMaster.fader.mSurfaceValue, page.mHostAccess.mMouseCursor.mValueUnderMouse).setValueTakeOverModeJump().setSubPage(subPageMasterFaderValue)
+  page.makeValueBinding(device.master.fader.mSurfaceValue, page.mHostAccess.mMouseCursor.mValueUnderMouse).setValueTakeOverModeJump().setSubPage(subPageMasterFaderValue)
 
   // Automation for selected tracks
   var selectedTrackChannel = page.mHostAccess.mTrackSelection.mMixerChannel
 
   // Automation for selected tracks
-  page.makeValueBinding(surfaceElements.faderMaster.read_button.mSurfaceValue, selectedTrackChannel.mValue.mAutomationRead).setTypeToggle()
-  page.makeValueBinding(surfaceElements.faderMaster.write_button.mSurfaceValue, selectedTrackChannel.mValue.mAutomationWrite).setTypeToggle()
+  page.makeValueBinding(device.master.buttons.read.mSurfaceValue, selectedTrackChannel.mValue.mAutomationRead).setTypeToggle()
+  page.makeValueBinding(device.master.buttons.write.mSurfaceValue, selectedTrackChannel.mValue.mAutomationWrite).setTypeToggle()
 
   // Mixer Button
-  // WIP Make this a per page thing not a default - pages can better track the specific use of this button
-  var display_type = page.mCustom.makeHostValueVariable("Mixer - display type")
-  page.makeValueBinding(surfaceElements.faderMaster.mixer_button.mSurfaceValue, display_type).setTypeToggle().mOnValueChange = function (/** @type {MR_ActiveDevice} **/activeDevice, mapping, value, value2) {
-      // console.log("display_type OnValueChange:"+value+":"+value2)
-      if(value===0)
-      {
-          activeDevice.setState("displayType", "Fader")
-      } else {
-          activeDevice.setState("displayType", "Pan")
-      }
-      // Update controller
-      Helper_updateDisplay(activeDevice.getState('Display - idRow1'), activeDevice.getState('Display - idRow2'), activeDevice.getState('Display - idAltRow1'), activeDevice.getState('Display - idAltRow2'), activeDevice, midiOutput)
-  }
-
+  page
+    .makeValueBinding(
+      device.master.buttons.mixer.mSurfaceValue,
+      page.mCustom.makeHostValueVariable("Display Name/Value")
+    )
+    .mOnValueChange = (context, mapping, value) => {
+    if (value) {
+      globalBooleanVariables.isValueDisplayModeActive.toggle(context);
+    }
+  };
   return page
 }

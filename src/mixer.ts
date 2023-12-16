@@ -1,9 +1,10 @@
-import { clearAllLeds } from "./icon_elements";
 import { makePageWithDefaults } from "./master_controls"
-import { SurfaceElements } from "./icon_elements"
+import { IconPlatformMplus } from "./icon_elements"
+import { GlobalBooleanVariables } from "./midi/binding"
+import { ActivationCallbacks } from "./midi/connection"
 
-export function makePage(surfaceElements: SurfaceElements, deviceDriver: MR_DeviceDriver, midiOutput: MR_DeviceMidiOutput) {
-  var page = makePageWithDefaults('Mixer', surfaceElements, deviceDriver, midiOutput)
+export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDriver, globalBooleanVariables: GlobalBooleanVariables, activationCallbacks: ActivationCallbacks ) {
+  var page = makePageWithDefaults('Mixer', device, deviceDriver, globalBooleanVariables, activationCallbacks)
 
   var FaderSubPageArea = page.makeSubPageArea('FadersKnobs')
   var subPageFaderVolume = FaderSubPageArea.makeSubPage('Volume')
@@ -14,18 +15,20 @@ export function makePage(surfaceElements: SurfaceElements, deviceDriver: MR_Devi
   var hostMixerBankZone = page.mHostAccess.mMixConsole.makeMixerBankZone("AudioInstrBanks")
       .setFollowVisibility(true)
 
-  for (var channelIndex = 0; channelIndex < surfaceElements.numStrips; ++channelIndex) {
+  for (var channelIndex = 0; channelIndex < device.numStrips; ++channelIndex) {
       var hostMixerBankChannel = hostMixerBankZone.makeMixerBankChannel()
 
-      var knobSurfaceValue = surfaceElements.channelControls[channelIndex].pushEncoder.mEncoderValue;
-      var knobPushValue = surfaceElements.channelControls[channelIndex].pushEncoder.mPushValue;
-      var faderSurfaceValue = surfaceElements.channelControls[channelIndex].fader.mSurfaceValue;
-      var faderTouchValue = surfaceElements.channelControls[channelIndex].fader_touch;
-      var sel_buttonSurfaceValue = surfaceElements.channelControls[channelIndex].sel_button.mSurfaceValue;
-      var mute_buttonSurfaceValue = surfaceElements.channelControls[channelIndex].mute_button.mSurfaceValue;
-      var solo_buttonSurfaceValue = surfaceElements.channelControls[channelIndex].solo_button.mSurfaceValue;
-      var rec_buttonSurfaceValue = surfaceElements.channelControls[channelIndex].rec_button.mSurfaceValue;
+      var trackTitle = device.channelControls[channelIndex].scribbleStrip.trackTitle
+      var knobSurfaceValue = device.channelControls[channelIndex].encoder.mEncoderValue;
+      var knobPushValue = device.channelControls[channelIndex].encoder.mPushValue;
+      var faderSurfaceValue = device.channelControls[channelIndex].fader.mSurfaceValue;
+      var sel_buttonSurfaceValue = device.channelControls[channelIndex].buttons.select.mSurfaceValue;
+      var mute_buttonSurfaceValue = device.channelControls[channelIndex].buttons.mute.mSurfaceValue;
+      var solo_buttonSurfaceValue = device.channelControls[channelIndex].buttons.solo.mSurfaceValue;
+      var rec_buttonSurfaceValue = device.channelControls[channelIndex].buttons.record.mSurfaceValue;
 
+      // Scribble Strip
+      page.makeValueBinding(trackTitle, hostMixerBankChannel.mValue.mVolume).setSubPage(subPageFaderVolume);
       // FaderKnobs - Volume, Pan, Editor Open
       page.makeValueBinding(knobSurfaceValue, hostMixerBankChannel.mValue.mPan).setSubPage(subPageFaderVolume)
       page.makeValueBinding(knobPushValue, hostMixerBankChannel.mValue.mEditorOpen).setTypeToggle().setSubPage(subPageFaderVolume)
@@ -39,8 +42,9 @@ export function makePage(surfaceElements: SurfaceElements, deviceDriver: MR_Devi
   }
 
   page.mOnActivate = function (activeDevice: MR_ActiveDevice) {
-      console.log('from script: Platform M+ page "Mixer" activated')
-      clearAllLeds(activeDevice, midiOutput)
+      // console.log('from script: Platform M+ page "Mixer" activated')
+      globalBooleanVariables.displayChannelValueName.set(activeDevice, false)
+      globalBooleanVariables.displayParameterTitle.set(activeDevice, false)
   }
 
   return page
