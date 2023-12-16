@@ -146,6 +146,9 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
         // Set the Rec leds which correspond to the different subages to their starting state
         globalBooleanVariables.displayChannelValueName.set(activeDevice, true)
         globalBooleanVariables.displayParameterTitle.set(activeDevice, true)
+        globalBooleanVariables.areKnobsBound.set(activeDevice, false);
+        globalBooleanVariables.areFadersBound.set(activeDevice, false);
+        globalBooleanVariables.refreshDisplay.toggle(activeDevice); // Force display update in case there are no active bindings
         device.midiPortPair.output.sendMidi(activeDevice, [0x90, 0, 127])
         device.midiPortPair.output.sendMidi(activeDevice, [0x90, 1, 0])
         device.midiPortPair.output.sendMidi(activeDevice, [0x90, 2, 0])

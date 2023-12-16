@@ -77,7 +77,9 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
         // console.log('from script: Platform M+ page "Channel Strip" activated')
         globalBooleanVariables.displayChannelValueName.set(activeDevice, true)
         globalBooleanVariables.displayParameterTitle.set(activeDevice, true)
-
+        globalBooleanVariables.areKnobsBound.set(activeDevice, false);
+        globalBooleanVariables.areFadersBound.set(activeDevice, false);
+        globalBooleanVariables.refreshDisplay.toggle(activeDevice); // Force display update in case there are no active bindings
         // ? Action Binding as a toggle would be nice to display led on subpage activation, but LED Button has other ideas and Action Bindings are not toggles.
         //   midiOutput.sendMidi(activeDevice, [0x90, 24, 127])
         //   midiOutput.sendMidi(activeDevice, [0x90, 25, 0])

@@ -39,7 +39,7 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
   }
 
   page.mOnActivate = (context: MR_ActiveDevice) => {
-    console.log('from script: Platform M+ page "Midi" activated')
+    // console.log('from script: Platform M+ page "Midi" activated')
 
     // This fails on activate due to overwrite from faders! thankfully the valueBinding doesn't. Looks like the scribble strip updates when the faders are deactivated occur
     // after the mOnActivate call thus wiping this out.

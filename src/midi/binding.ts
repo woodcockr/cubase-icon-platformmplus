@@ -14,8 +14,10 @@ import { LcdManager } from "./LcdManager";
 export const createGlobalBooleanVariables = () => ({
   areMotorsActive: new BooleanContextStateVariable(),
   isValueDisplayModeActive: new BooleanContextStateVariable(),
-  resetDisplay: new BooleanContextStateVariable(), // Toggling this will refresh the display with TrackTitles etc)
+  refreshDisplay: new BooleanContextStateVariable(), // Toggling this will refresh the display with TrackTitles etc)
   areDisplayRowsFlipped: new BooleanContextStateVariable(),
+  areFadersBound: new BooleanContextStateVariable(), // Ugly workaround for not receiving mOnTitleChange events when switching pages to unbound Faders
+  areKnobsBound: new BooleanContextStateVariable(), // Ugly workaround for not receiving mOnTitleChange events when switching pages to unbound Knobs
   isFlipModeActive: new BooleanContextStateVariable(),
   displayChannelValueName: new BooleanContextStateVariable(),
   displayParameterTitle: new BooleanContextStateVariable(),
@@ -113,19 +115,23 @@ export function bindDeviceToMidi(
       const row = +globalBooleanVariables.areDisplayRowsFlipped.get(context);
       const displayParameterTitle = globalBooleanVariables.displayParameterTitle.get(context)
 
-      let name = currentParameterName.get(context)
-      if (displayParameterTitle) {
-        name = currentParameterTitle.get(context)
+      if (globalBooleanVariables.areKnobsBound.get(context)) {
+        let name = currentParameterName.get(context)
+        if (displayParameterTitle) {
+          name = currentParameterTitle.get(context)
+        }
+        device.lcdManager.setChannelText(
+          context,
+          row,
+          channelIndex,
+          isLocalValueModeActive.get(context) ||
+            globalBooleanVariables.isValueDisplayModeActive.get(context)
+            ? currentDisplayValue.get(context)
+            : name
+        );
+      } else {
+        device.lcdManager.setChannelText(context, row, channelIndex, "");
       }
-      device.lcdManager.setChannelText(
-        context,
-        row,
-        channelIndex,
-        isLocalValueModeActive.get(context) ||
-          globalBooleanVariables.isValueDisplayModeActive.get(context)
-          ? currentDisplayValue.get(context)
-          : name
-      );
     };
 
     channel.encoder.mEncoderValue.mOnDisplayValueChange = (context, value) => {
@@ -167,6 +173,7 @@ export function bindDeviceToMidi(
     };
 
     channel.encoder.mEncoderValue.mOnTitleChange = (context, title1, title2) => {
+      globalBooleanVariables.areKnobsBound.set(context, true);
       // Luckily, `mOnTitleChange` runs after `mOnDisplayValueChange`, so setting
       // `isLocalValueModeActive` to `false` here overwrites the `true` that `mOnDisplayValueChange`
       // sets
@@ -230,19 +237,24 @@ export function bindDeviceToMidi(
 
     globalBooleanVariables.isValueDisplayModeActive.addOnChangeCallback(updateNameValueDisplay);
     globalBooleanVariables.areDisplayRowsFlipped.addOnChangeCallback(updateNameValueDisplay);
-    globalBooleanVariables.resetDisplay.addOnChangeCallback(updateNameValueDisplay);
+    globalBooleanVariables.refreshDisplay.addOnChangeCallback(updateNameValueDisplay);
 
     const updateTrackTitleDisplay = (context: MR_ActiveDevice) => {
       const row = 1 - +globalBooleanVariables.areDisplayRowsFlipped.get(context);
       const displayChannelValueName = globalBooleanVariables.displayChannelValueName.get(context)
-
-      let name = currentChannelName.get(context)
-      if (displayChannelValueName) {
-        name = currentChannelValueName.get(context)
+      if (globalBooleanVariables.areFadersBound.get(context)) {
+        let name = currentChannelName.get(context)
+        if (displayChannelValueName) {
+          name = currentChannelValueName.get(context)
+        }
+        device.lcdManager.setChannelText(context, row, channelIndex, name);
+      } else {
+        device.lcdManager.setChannelText(context, row, channelIndex, "");
       }
-      device.lcdManager.setChannelText(context, row, channelIndex, name);
     };
+
     channel.scribbleStrip.trackTitle.mOnTitleChange = (context, title, valueTitle) => {
+      globalBooleanVariables.areFadersBound.set(context, true);
       currentChannelName.set(
         context,
         LcdManager.abbreviateString(LcdManager.stripNonAsciiCharacters(title))
@@ -251,13 +263,11 @@ export function bindDeviceToMidi(
         context,
         LcdManager.abbreviateString(LcdManager.stripNonAsciiCharacters(valueTitle))
       );
-
       updateTrackTitleDisplay(context);
-
     };
 
     globalBooleanVariables.areDisplayRowsFlipped.addOnChangeCallback(updateTrackTitleDisplay);
-    globalBooleanVariables.resetDisplay.addOnChangeCallback(updateTrackTitleDisplay);
+    globalBooleanVariables.refreshDisplay.addOnChangeCallback(updateTrackTitleDisplay);
 
     // Channel Buttons
     const buttons = channel.buttons;
@@ -319,7 +329,7 @@ export function bindDeviceToMidi(
   master.fader.mTouchedValue.mOnProcessValueChange = (context, touched, value2) => {
     // value===-1 means touch released
     if (value2 == -1) {
-      globalBooleanVariables.resetDisplay.toggle(context);
+      globalBooleanVariables.refreshDisplay.toggle(context);
     } else {
       device.lcdManager.setTextLine(context, 1, currentMasterFaderParameterName.get(context))
       device.lcdManager.setTextLine(context, 0, currentMasterFaderDisplayValue.get(context))

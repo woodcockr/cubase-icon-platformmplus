@@ -45,6 +45,9 @@ export function makePage(device: IconPlatformMplus, deviceDriver: MR_DeviceDrive
       // console.log('from script: Platform M+ page "Mixer" activated')
       globalBooleanVariables.displayChannelValueName.set(activeDevice, false)
       globalBooleanVariables.displayParameterTitle.set(activeDevice, false)
+      globalBooleanVariables.areKnobsBound.set(activeDevice, false);
+      globalBooleanVariables.areFadersBound.set(activeDevice, false);
+      globalBooleanVariables.refreshDisplay.toggle(activeDevice); // Force display update in case there are no active bindings
   }
 
   return page
