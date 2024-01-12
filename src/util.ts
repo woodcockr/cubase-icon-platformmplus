@@ -81,14 +81,15 @@ export type TimerUtils = ReturnType<typeof makeTimerUtils>;
 export function makeTimerUtils(
   driver: MR_DeviceDriver,
   page: MR_FactoryMappingPage,
-  surface: MR_DeviceSurface
+  surface: MR_DeviceSurface,
+  isAPIVersion1_1: boolean
 ) {
   const timeouts: Record<
     string,
     { callback: (context: MR_ActiveDevice) => void; scheduledExecutionTime: number }
   > = {};
 
-  let isIdleCallbackSupported = true;
+  let isIdleCallbackSupported = isAPIVersion1_1;
 
   // Cubase 13 and above: Register an Idle Callback
   driver.mOnIdle = function (context) {

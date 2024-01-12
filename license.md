@@ -1,6 +1,7 @@
 MIT License
 
 Copyright (c) 2023 woodcockr
+Copyright (c) 2023 bjoluc - some code forked from: https://github.com/bjoluc/cubase-mcu-midiremote.git
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

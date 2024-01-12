@@ -34,6 +34,7 @@ const deviceDriver = midiremote_api.makeDeviceDriver('Icon', 'Platform Mplus', '
 var surface = decorateSurface(deviceDriver.mSurface)
 
 const device = new IconPlatformMplus(deviceDriver, surface);
+const isAPIVersion1_1 = device.channelControls[0].fader.mSurfaceValue.mTouchState ? true: false
 
 const activationCallbacks = setupDeviceConnection(deviceDriver, device);
 
@@ -54,6 +55,6 @@ var selectedTrackPage = decoratePage(selected_track.makePage(device, deviceDrive
 var channelStripPage = decoratePage(channel_strip.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
 var controlRoomPage = decoratePage(control_room.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
 var midiPage = decoratePage(midi.makePage(device, deviceDriver, globalBooleanVariables, activationCallbacks), surface)
-const timerUtils = makeTimerUtils(deviceDriver, mixerPage, surface);
+const timerUtils = makeTimerUtils(deviceDriver, mixerPage, surface, isAPIVersion1_1);
 
 bindDeviceToMidi(device, globalBooleanVariables, activationCallbacks, timerUtils);
